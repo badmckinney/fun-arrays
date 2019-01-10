@@ -44,7 +44,7 @@ describe('Array Methods', function () {
 
   describe('sumOfHighInterests', function () {
     it('should be the sum the 18.9% interest for all amounts in bankBalances, where the amount of the sum of interests in that state is greater than 50,000, in the selected states, rounded to the nearest dollar', function () {
-      arrayMethods.sumOfHighInterests.should.be.equal(7985374);
+      arrayMethods.sumOfHighInterests.should.be.equal(7935907);
     });
   });
 
