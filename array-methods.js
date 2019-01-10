@@ -1,14 +1,19 @@
-var dataset = require('./dataset.json');
+"use strict";
 
+var dataset = require('./dataset.json');
+let bankBalances = dataset.bankBalances;
 /*
   create an array with accounts from bankBalances that are
   greater than 100000
   assign the resulting new array to `hundredThousandairs`
 */
-var hundredThousandairs = null;
+var hundredThousandairs = bankBalances.filter(account => account.amount > 100000);
+
 
 // set sumOfBankBalances to be the sum of all value held at `amount` for each bank object
-var sumOfBankBalances = null;
+var sumOfBankBalances = bankBalances.reduce((amount, previousValue) => {
+  return amount + parseInt(previousValue.amount);
+}, 0);
 
 /*
   from each of the following states:
@@ -21,7 +26,16 @@ var sumOfBankBalances = null;
   take each `amount` and add 18.9% interest to it rounded to the nearest dollar 
   and then sum it all up into one value saved to `sumOfInterests`
  */
-var sumOfInterests = null;
+
+var sumOfInterests = bankBalances.filter(account => {
+  return ['WI', 'WY', 'IL', 'OH', 'GA', 'DE'].includes(account.state);
+})
+  .map((account) => {
+    return Math.round(parseInt(account.amount) * 0.189);
+  })
+  .reduce((interests, previousValue) => {
+    return interests + parseInt(previousValue);
+  }, 0);
 
 /*
   aggregate the sum of bankBalance amounts
@@ -39,7 +53,16 @@ var sumOfInterests = null;
     round this number to the nearest dollar before moving on.
   )
  */
-var stateSums = null;
+var stateSums = bankBalances.reduce((account, previousValue) => {
+  let state = previousValue.state;
+  let amount = Math.round(parseInt(previousValue.amount));
+  if (account.hasOwnProperty(state)) {
+    account[state] += Math.round(amount);
+  } else {
+    account[state] = Math.round(amount);
+  }
+  return account;
+}, {});
 
 /*
   for all states *NOT* in the following states:
@@ -58,20 +81,66 @@ var stateSums = null;
     round this number to the nearest dollar before moving on.
   )
  */
-var sumOfHighInterests = null;
+
+var sumOfHighInterests = bankBalances.reduce((states, account) => {
+  if (!['WI', 'WY', 'IL', 'OH', 'GA', 'DE'].includes(account.state)) {
+    if (!states.includes(account.state)) {
+      states.push(account.state);
+    }
+  }
+
+  return states;
+}, [])
+  .reduce((sum, state) => {
+    let sumInterest = Math.round(stateSums[state] * 0.189);
+    //console.log("interest:", state, sumInterest);
+    if (sumInterest > 50000) {
+      //console.log("greater, adding");
+      //console.log("sum:", sum, '\n');
+      sum += sumInterest;
+    }
+
+    return sum;
+  }, 0);
 
 /*
   set `lowerSumStates` to be an array of two letter state
   abbreviations of each state where the sum of amounts
   in the state is less than 1,000,000
  */
-var lowerSumStates = null;
+var lowerSumStates = bankBalances.reduce((states, account) => {
+  let state = account.state;
+
+  if (!states.includes(state)) {
+    states.push(state);
+  }
+
+  return states;
+}, [])
+  .filter(state => { return stateSums[state] < 1000000 });
+
+
 
 /*
   aggregate the sum of each state into one hash table
   `higherStateSums` should be the sum of all states with totals greater than 1,000,000
  */
-var higherStateSums = null;
+var higherStateSums = bankBalances.reduce((states, account) => {
+  let state = account.state;
+
+  if (!states.includes(state)) {
+    states.push(state);
+  }
+
+  return states;
+}, [])
+  .reduce((sum, current) => {
+    if (stateSums[current] > 1000000) {
+      return sum + stateSums[current];
+    } else {
+      return sum;
+    }
+  }, 0);
 
 /*
   from each of the following states:
@@ -88,7 +157,9 @@ var higherStateSums = null;
   if true set `areStatesInHigherStateSum` to `true`
   otherwise set it to `false`
  */
-var areStatesInHigherStateSum = null;
+var areStatesInHigherStateSum = ['WI', 'WY', 'IL', 'OH', 'GA', 'DE'].every(state => {
+  return stateSums[state] > 2550000
+});
 
 /*
   Stretch Goal && Final Boss
@@ -104,17 +175,19 @@ var areStatesInHigherStateSum = null;
   have a sum of account values greater than 2,550,000
   otherwise set it to be `false`
  */
-var anyStatesInHigherStateSum = null;
+var anyStatesInHigherStateSum = ['WI', 'WY', 'IL', 'OH', 'GA', 'DE'].some(state => {
+  return stateSums[state] > 2550000
+});
 
 
 module.exports = {
-  hundredThousandairs : hundredThousandairs,
-  sumOfBankBalances : sumOfBankBalances,
-  sumOfInterests : sumOfInterests,
-  sumOfHighInterests : sumOfHighInterests,
-  stateSums : stateSums,
-  lowerSumStates : lowerSumStates,
-  higherStateSums : higherStateSums,
-  areStatesInHigherStateSum : areStatesInHigherStateSum,
-  anyStatesInHigherStateSum : anyStatesInHigherStateSum
+  hundredThousandairs: hundredThousandairs,
+  sumOfBankBalances: sumOfBankBalances,
+  sumOfInterests: sumOfInterests,
+  sumOfHighInterests: sumOfHighInterests,
+  stateSums: stateSums,
+  lowerSumStates: lowerSumStates,
+  higherStateSums: higherStateSums,
+  areStatesInHigherStateSum: areStatesInHigherStateSum,
+  anyStatesInHigherStateSum: anyStatesInHigherStateSum
 };
