@@ -31,10 +31,10 @@ var sumOfInterests = bankBalances.filter(account => {
   return ['WI', 'WY', 'IL', 'OH', 'GA', 'DE'].includes(account.state);
 })
   .map((account) => {
-    return Math.round(parseInt(account.amount) * 0.189);
+    return Math.round(account.amount * 0.189);
   })
   .reduce((interests, previousValue) => {
-    return interests + parseInt(previousValue);
+    return interests + previousValue;
   }, 0);
 
 /*
@@ -53,9 +53,9 @@ var sumOfInterests = bankBalances.filter(account => {
     round this number to the nearest dollar before moving on.
   )
  */
-var stateSums = bankBalances.reduce((account, previousValue) => {
-  let state = previousValue.state;
-  let amount = Math.round(parseInt(previousValue.amount));
+var stateSums = bankBalances.reduce((account, current) => {
+  let state = current.state;
+  let amount = Math.round(parseInt(current.amount));
   if (account.hasOwnProperty(state)) {
     account[state] += Math.round(amount);
   } else {
@@ -93,10 +93,8 @@ var sumOfHighInterests = bankBalances.reduce((states, account) => {
 }, [])
   .reduce((sum, state) => {
     let sumInterest = Math.round(stateSums[state] * 0.189);
-    //console.log("interest:", state, sumInterest);
+
     if (sumInterest > 50000) {
-      //console.log("greater, adding");
-      //console.log("sum:", sum, '\n');
       sum += sumInterest;
     }
 
